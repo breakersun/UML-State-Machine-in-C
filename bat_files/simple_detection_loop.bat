@@ -1,4 +1,4 @@
-cd ../demo\simple_state_machine
+cd ../demo\simple_detection_loop
 md build
 cd build
 del /s/q Unix
