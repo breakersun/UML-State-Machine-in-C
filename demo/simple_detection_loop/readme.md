@@ -1,14 +1,16 @@
-Simple state machine
+Simple detection loop
 ====================
 
 This example demonstrate a simple state machine of a process as shown below.
 
-![Process:Simple state machine](docs/state_diagram.svg)
+
+
+![uml diagram](https://www.plantuml.com/plantuml/img/RLBHJi8m57tlLvmd8oP4wfCI9S7D1194ujGNCMHkDwFHjRXs0Z7-Enq5jeflf-VSUtfxRlM7a2YK9lPwzePs8RAvQVSG2ftCuo8ZTa3eucuyUxbzZd23pX4VZV_bms4K3Ap06MD1nGkPUKxyBxqtykczZyS_KfnMQAX9Qk9uNwCV1bXG8LGgalXpNLUtoqNpNRRRTU4QgnNolfsl5WyvO2I-If66P2WnjkVgCe_m979IfM7Qn8RyYXy6R8FiOL9GP6YXBRE7MrffumvTNEJwO8Q6ucRrXXqhXFGj4ggGknAdmSFzP3Ou7rMvyDPKgc8dDHNUQVdcgLfAQz_8SUUy56PUsq-bvy9RpOVuV-58S3laHqAzHNX1L8k4kmqd3enioI_R0000)
 
 ### The process has 3 states
 1. Idle state  
 This state waits for the **Start** event to occur. On **Start** event,
-  it starts the process for defined period and switch to Active state.
+    it starts the process for defined period and switch to Active state.
 
 2. Active state  
 This state supports **Stop**, **Pause** and **Timeout** events.
