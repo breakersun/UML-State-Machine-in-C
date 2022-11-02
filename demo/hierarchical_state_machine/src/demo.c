@@ -104,9 +104,7 @@ void init_demo(demo_state_machine_t* const pDemo)
 {
   pDemo->Machine.State = &Level1_HSM[0];
   pDemo->Machine.Event = 0;
-  printf("State machine is in L1_S1 state\n");
-  printf("Supported Events are\n");
-  printf("EVENT1: press 1 to trigger\n");
+  level1_state1_entry_handler((state_machine_t *)&Level1_HSM[0]);
 }
 
 static state_machine_result_t level1_state1_handler(state_machine_t * const pState)
