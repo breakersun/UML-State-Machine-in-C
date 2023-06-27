@@ -70,7 +70,7 @@ struct finite_state{
   state_handler Entry;        //!< Entry action for state
   state_handler Exit;          //!< Exit action for state.
 
-#if STATE_MACHINE_LOGGER
+#if STATE_MACHINE_LOGGER || USE_STATE_ID
   uint32_t Id;              //!< unique identifier of state within the single state machine
 #endif
 };
@@ -82,7 +82,7 @@ struct hierarchical_state
   state_handler Entry;        //!< Entry action for state
   state_handler Exit;          //!< Exit action for state.
 
-#if STATE_MACHINE_LOGGER
+#if STATE_MACHINE_LOGGER || USE_STATE_ID
   uint32_t Id;              //!< unique identifier of state within the single state machine
 #endif
 

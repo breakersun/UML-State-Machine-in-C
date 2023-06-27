@@ -17,8 +17,8 @@ The framework contains three files
 2. hsm.h : Contains the API's and structure declarations
 3. hsm_config.h : Compile-time configuration of framework.
 
-To read more about finite state machine and hierarchical state machine please go through the following links.  
-<https://en.wikipedia.org/wiki/UML_state_machine>  
+To read more about finite state machine and hierarchical state machine please go through the following links.
+<https://en.wikipedia.org/wiki/UML_state_machine>
 <https://en.wikipedia.org/wiki/Finite-state_machine>
 
 Moroever, there is a an excellent book [Practical UML Statecharts in C/C++, 2nd Ed][1] that explains the UML state machine concept.
@@ -200,6 +200,18 @@ By default, logging is disabled.
 #define STATE_MACHINE_LOGGER     1
 ```
 
+### Enable State ID
+
+We can use debug probe to inspect and mornitor state ID sometimes.
+Change the value of `USE_STATE_ID` to enable state id declaration even with logging disabled.
+
+```C
+// 0: disable the state id
+// 1: enable the state id
+#define USE_STATE_ID     1
+
+```
+
 ### Disable Variable length array
 
 The `traverse_state` function uses variable length array feature in the implementation of hierarchical state machine.
@@ -245,10 +257,10 @@ Users can use this logging mechanism to also log the time consumed to handle the
 Start timer on `state_machine_event_logger` and stop on `state_machine_result_logger`.
 
 ### Demo
-[simple state machine](demo/simple_state_machine/readme.md)  
-[simple state machine (enhanced)](demo/simple_state_machine_enhanced/readme.md)  
-[simple hierarchical state machine](demo/hierarchical_state_machine/readme.md)  
-[Toaster oven](demo/toaster_oven/readme.md)  
+[simple state machine](demo/simple_state_machine/readme.md)
+[simple state machine (enhanced)](demo/simple_state_machine_enhanced/readme.md)
+[simple hierarchical state machine](demo/hierarchical_state_machine/readme.md)
+[Toaster oven](demo/toaster_oven/readme.md)
 
 ### Todo
 - Add more real world examples/demo's specially related to embedded systems
