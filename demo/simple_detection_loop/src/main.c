@@ -70,8 +70,11 @@ int main(void)
   while(1)
   {
     sem_wait(&Semaphore);   // Wait for event
-
+    #if STATE_MACHINE_LOGGER
     if(dispatch_event(State_Machines, 1, event_logger, result_logger) == EVENT_UN_HANDLED)
+    #else
+    if(dispatch_event(State_Machines, 1) == EVENT_UN_HANDLED)
+    #endif
     {
       printf("invalid event entered\n");
     }
