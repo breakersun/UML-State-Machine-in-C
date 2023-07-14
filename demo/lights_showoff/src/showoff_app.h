@@ -22,11 +22,10 @@
 //! List of process events
 typedef enum
 {
-  START = 1,
-  STOP,
-  PAUSE,
-  RESUME,
-  TIMEOUT,
+  POWER_SHORT_PRESS = 1,
+  POWER_LONG_PRESS,
+  LEFT_SHORT_PRESS,
+  RIGHT_SHORT_PRESS,
 }process_event_t;
 
 /*
@@ -37,47 +36,13 @@ typedef enum
 typedef struct
 {
   state_machine_t Machine;      //!< Abstract state machine
-  uint32_t Set_Time;    //! Set time of a process
-  uint32_t Resume_Time; //!< Remaining time when the process is paused
-  uint32_t Timer;       //!< Process timer
 }process_t;
 
 /*
  *  --------------------- External function prototype ---------------------
  */
 
-extern void init_process(process_t* const pProcess, uint32_t processTime);
-
-/*
- *  --------------------- Inline functions ---------------------
- */
-
- // process APIs
-
-static inline void start_process(process_t* const pProcess)
-{
-  pProcess->Machine.Event = START;
-}
-
-static inline void stop_process(process_t* const pProcess)
-{
-  pProcess->Machine.Event = STOP;
-}
-
-static inline void pause_process(process_t* const pProcess)
-{
-  pProcess->Machine.Event = PAUSE;
-}
-
-static inline void resume_process(process_t* const pProcess)
-{
-  pProcess->Machine.Event = RESUME;
-}
-
-static inline void on_process_timedout(process_t* const pProcess)
-{
-  pProcess->Machine.Event = TIMEOUT;
-}
+extern void init_process(process_t* const pProcess);
 
 /** \brief Parses the user keyboard input and calls the respective API,
  *  to trigger the events to state machine.
@@ -90,24 +55,20 @@ static inline void parse_cli(process_t* const pProcess, char input)
 {
   switch(input)
   {
-  case 's':
-  case 'S':
-    start_process(pProcess);
+  case '1':
+    pProcess->Machine.Event = POWER_SHORT_PRESS;
     break;
 
-  case 'q':
-  case 'Q':
-    stop_process(pProcess);
+  case '2':
+    pProcess->Machine.Event = POWER_LONG_PRESS;
     break;
 
-  case 'p':
-  case 'P':
-    pause_process(pProcess);
+  case '3':
+    pProcess->Machine.Event = LEFT_SHORT_PRESS;
     break;
 
-  case 'r':
-  case 'R':
-    resume_process(pProcess);
+  case '4':
+    pProcess->Machine.Event = RIGHT_SHORT_PRESS;
     break;
 
   default:

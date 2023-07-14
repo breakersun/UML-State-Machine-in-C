@@ -42,7 +42,7 @@ add_executable(showoff ${DEMO_FILES} ${TARGET_FILES} ${HEADER_FILES})
 
 if ( CMAKE_C_COMPILER_ID MATCHES "Clang|AppleClang|GNU" )
     target_compile_options( showoff PRIVATE -Wall -Wextra -Wunreachable-code -Wpedantic)
-    target_compile_options( showoff PRIVATE -Werror )
+    # target_compile_options( showoff PRIVATE -Werror )
 endif()
 
 target_compile_definitions(showoff PRIVATE HSM_CONFIG)

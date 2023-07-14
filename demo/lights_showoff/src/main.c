@@ -54,34 +54,6 @@ void result_logger(uint32_t state, state_machine_result_t result)
   printf("Result: %d, New State: %d\n", result, state);
 }
 
-/** \brief Simulate the timer ISR.
- *
- * This is an one second timer. When process is active it prints the remaining time on console.
- * It also generates the timeout event when process time expires.
- */
-void* timer(void* vargp)
-{
-	(void)(vargp);
-    while(1)
-    {
-      sleep(1);
-
-      if(SampleProcess.Timer > 0)
-      {
-        SampleProcess.Timer--;
-
-        printf("\rRemaining process time: %d ", SampleProcess.Timer);
-
-        if(SampleProcess.Timer == 0)
-        {
-          printf("\n");
-          on_process_timedout(&SampleProcess);  // Generate the timeout event
-          sem_post(&Semaphore);   // signal to main thread
-        }
-      }
-    }
-    return NULL;
-}
 
 /** \brief Simulate the user inputs.
  *
@@ -110,11 +82,10 @@ void* console(void* vargp)
 int main(void)
 {
   // Initialize the process state machine.
-  init_process(&SampleProcess, 10);
+  init_process(&SampleProcess);
 
   // Create timer and console thread
-  pthread_t timer_thread, console_thread;
-  pthread_create(&timer_thread, NULL, timer, NULL);
+  pthread_t console_thread;
   pthread_create(&console_thread, NULL, console, NULL);
   sem_init(&Semaphore, 0, 1);
 
