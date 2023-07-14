@@ -19,7 +19,7 @@
 #include <stdio.h>
 
 #include "hsm.h"
-#include "demo_process.h"
+#include "showoff_app.h"
 
 /*
  *  --------------------- ENUMERATION ---------------------
