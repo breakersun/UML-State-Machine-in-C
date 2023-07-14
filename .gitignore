@@ -57,3 +57,14 @@ Release
 MinGW
 vs2019
 /build
+.cache
+CMakeFiles
+CMakeCache.txt
+/cmake_install.cmake
+/compile_commands.json
+/CTestTestfile.cmake
+/DartConfiguration.tcl
+/Makefile
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
