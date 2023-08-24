@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
-project("showoff")
+project("ux")
 
 # Setup path for source dir
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -11,11 +11,11 @@ set(TARGET_FILES
 
 set (DEMO_FILES 
 	${SRC_DIR}/main.c
-	${SRC_DIR}/showoff_app.c
+	${SRC_DIR}/ux.c
 	)
 
 set (HEADER_FILES
-		${SRC_DIR}/showoff_app.h
+		${SRC_DIR}/ux.h
 		${TARGET_DIR}/hsm.h
 	)
 SOURCE_GROUP("Src" FILES ${DEMO_FILES} ${TARGET_FILES} ${HEADER_FILES})
@@ -38,18 +38,18 @@ set(HIERARCHICAL_STATES 0)
 set(STATE_MACHINE_LOGGER 1)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 
-add_executable(showoff ${DEMO_FILES} ${TARGET_FILES} ${HEADER_FILES})
+add_executable(ux ${DEMO_FILES} ${TARGET_FILES} ${HEADER_FILES})
 
 if ( CMAKE_C_COMPILER_ID MATCHES "Clang|AppleClang|GNU" )
-    target_compile_options( showoff PRIVATE -Wall -Wextra -Wunreachable-code -Wpedantic)
-    # target_compile_options( showoff PRIVATE -Werror )
+    target_compile_options( ux PRIVATE -Wall -Wextra -Wunreachable-code -Wpedantic)
+    # target_compile_options( ux PRIVATE -Werror )
 endif()
 
-target_compile_definitions(showoff PRIVATE HSM_CONFIG)
+target_compile_definitions(ux PRIVATE HSM_CONFIG)
 configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/../../CMake/hsm_config.h.in"
             "${CMAKE_CURRENT_BINARY_DIR}/hsm_config.h" )
 
 # Setup compiler include path
-target_include_directories(showoff PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(ux PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 

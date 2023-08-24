@@ -22,7 +22,7 @@
 #include <semaphore.h>
 
 #include "hsm.h"
-#include "showoff_app.h"
+#include "ux.h"
 
 /*
  *  --------------------- Global variables ---------------------
