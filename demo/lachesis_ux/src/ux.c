@@ -12,9 +12,6 @@
  *  file LICENSE or copy at https://mit-license.org/)
  */
 
-/*
- *  --------------------- INCLUDE FILES ---------------------
- */
 #include <stdint.h>
 #include <stdio.h>
 
@@ -28,63 +25,72 @@
 //! List of states the process state machine
 typedef enum
 {
-  POWERDOWN_STATE,
-  PATTERN_1_STATE,
-  PATTERN_2_STATE,
-  PATTERN_3_STATE,
+  POWERUP,
+  WRONG_ADAPTER,
+  IDLE,
+  WORKING,
+  ERRORS,
 }process_state_t;
 
-/*
- *  --------------------- Function prototype ---------------------
- */
 
-static state_machine_result_t powerdown_handler(state_machine_t* const State);
-static state_machine_result_t powerdown_entry(state_machine_t* const State);
-static state_machine_result_t powerdown_exit(state_machine_t* const State);
+static state_machine_result_t powerup_handler(state_machine_t* const State);
+static state_machine_result_t powerup_entry(state_machine_t* const State);
+static state_machine_result_t powerup_exit(state_machine_t* const State);
 
-static state_machine_result_t pattern1_handler(state_machine_t* const State);
-static state_machine_result_t pattern1_entry(state_machine_t* const State);
-static state_machine_result_t pattern1_exit(state_machine_t* const State);
+static state_machine_result_t wrong_adapter_handler(state_machine_t* const State);
+static state_machine_result_t wrong_adapter_entry(state_machine_t* const State);
+static state_machine_result_t wrong_adapter_exit(state_machine_t* const State);
 
-static state_machine_result_t pattern2_handler(state_machine_t* const State);
-static state_machine_result_t pattern2_entry(state_machine_t* const State);
-static state_machine_result_t pattern2_exit(state_machine_t* const State);
+static state_machine_result_t idle_handler(state_machine_t* const State);
+static state_machine_result_t idle_entry(state_machine_t* const State);
+static state_machine_result_t idle_exit(state_machine_t* const State);
 
-static state_machine_result_t pattern3_handler(state_machine_t* const State);
-static state_machine_result_t pattern3_entry(state_machine_t* const State);
-static state_machine_result_t pattern3_exit(state_machine_t* const State);
+static state_machine_result_t working_handler(state_machine_t* const State);
+static state_machine_result_t working_entry(state_machine_t* const State);
+static state_machine_result_t working_exit(state_machine_t* const State);
+
+static state_machine_result_t errors_handler(state_machine_t* const State);
+static state_machine_result_t errors_entry(state_machine_t* const State);
+static state_machine_result_t errors_exit(state_machine_t* const State);
 /*
  *  --------------------- Global variables ---------------------
  */
 
 static const state_t Process_States[] =
 {
-  [POWERDOWN_STATE] = {
-    .Handler = powerdown_handler,
-    .Entry   = powerdown_entry,
-    .Exit    = powerdown_exit,
-    .Id      = POWERDOWN_STATE,
+  [POWERUP] = {
+    .Handler = powerup_handler,
+    .Entry   = powerup_entry,
+    .Exit    = powerup_exit,
+    .Id      = POWERUP,
   },
 
-  [PATTERN_1_STATE] = {
-    .Handler = pattern1_handler,
-    .Entry   = pattern1_entry,
-    .Exit    = pattern1_exit,
-    .Id      = PATTERN_1_STATE,
+  [WRONG_ADAPTER] = {
+    .Handler = wrong_adapter_handler,
+    .Entry   = wrong_adapter_entry,
+    .Exit    = wrong_adapter_exit,
+    .Id      = WRONG_ADAPTER,
   },
 
-  [PATTERN_2_STATE] = {
-    .Handler = pattern2_handler,
-    .Entry   = pattern2_entry,
-    .Exit    = pattern2_exit,
-    .Id      = PATTERN_2_STATE,
+  [IDLE] = {
+    .Handler = idle_handler,
+    .Entry   = idle_entry,
+    .Exit    = idle_exit,
+    .Id      = IDLE,
   },
 
-  [PATTERN_3_STATE] = {
-    .Handler = pattern3_handler,
-    .Entry   = pattern3_entry,
-    .Exit    = pattern3_exit,
-    .Id      = PATTERN_3_STATE,
+  [WORKING] = {
+    .Handler = working_handler,
+    .Entry   = working_entry,
+    .Exit    = working_exit,
+    .Id      = WORKING,
+  },
+
+  [ERRORS] = {
+    .Handler = errors_handler,
+    .Entry   = errors_entry,
+    .Exit    = errors_exit,
+    .Id      = ERRORS,
   }
 };
 
@@ -94,106 +100,97 @@ static const state_t Process_States[] =
 
 void init_process(process_t* const pProcess)
 {
-  pProcess->Machine.State = &Process_States[POWERDOWN_STATE];
+  pProcess->Machine.State = &Process_States[POWERUP];
   pProcess->Machine.Event = 0;
-
-  powerdown_entry((state_machine_t *)pProcess);
+  powerup_entry((state_machine_t *)pProcess);
 }
 
-static state_machine_result_t powerdown_entry(state_machine_t* const pState)
+static state_machine_result_t powerup_entry(state_machine_t* const pState)
 {
   (void)pState;
-  printf("Entering to powerdown state\n");
+  printf("Powering Up!\n");
   printf("Supported events:\n");
-  printf("'1' : Power Short Press\n");
+  printf("g: GOOD_ADAPTER_EVT\n");
+  printf("b: BAD_ADAPTER_EVT\n");
+  printf("\n");
   return EVENT_HANDLED;
 }
 
-static state_machine_result_t powerdown_handler(state_machine_t* const pState)
+static state_machine_result_t powerup_handler(state_machine_t* const pState)
 {
   switch(pState->Event)
   {
-  case POWER_SHORT_PRESS:
-    return switch_state(pState, &Process_States[PATTERN_1_STATE]);
+  case GOOD_ADAPTER_EVT:
+    return switch_state(pState, &Process_States[IDLE]);
+    break;
+  case BAD_ADAPTER_EVT:
+    return switch_state(pState, &Process_States[WRONG_ADAPTER]);
+    break;
   default:
     return EVENT_UN_HANDLED;
   }
   return EVENT_HANDLED;
 }
 
-static state_machine_result_t powerdown_exit(state_machine_t* const pState)
+static state_machine_result_t powerup_exit(state_machine_t* const pState)
 {
-  process_t* const pProcess = (process_t*)pState;
-  (void)pProcess;
-  printf("Exiting from powerdown state\n");
-  printf("\n");
+  (void)pState;
+  printf("Exiting from POWERUP state\n");
   return EVENT_HANDLED;
 }
 
-static state_machine_result_t pattern1_entry(state_machine_t* const pState)
+static state_machine_result_t wrong_adapter_entry(state_machine_t* const pState)
 {
   (void)(pState);
-  printf("Entering to pattern1 state\n");
-  printf("Supported events:\n");
-  printf("'1' : Power Short Press\n");
-  printf("'2' : Power Long Press\n");
-  printf("'3' : Left Press\n");
-  printf("'4' : Right Press\n");
+  printf("Entering to [WRONG_ADAPTER] state\n");
+  printf("Supported no events\n");
+  printf("[UI] LED WRONG ADAPTER\n");
   return EVENT_HANDLED;
 }
 
-static state_machine_result_t pattern1_handler(state_machine_t* const pState)
+static state_machine_result_t wrong_adapter_handler(state_machine_t* const pState)
 {
   switch(pState->Event)
   {
-  case POWER_SHORT_PRESS:
-      break;
-
-  case POWER_LONG_PRESS:
-    return switch_state(pState, &Process_States[POWERDOWN_STATE]);
-
-  case LEFT_SHORT_PRESS:
-    return switch_state(pState, &Process_States[PATTERN_3_STATE]);
-
-  case RIGHT_SHORT_PRESS:
-    return switch_state(pState, &Process_States[PATTERN_2_STATE]);
-
   default:
     return EVENT_UN_HANDLED;
   }
   return EVENT_HANDLED;
 }
 
-static state_machine_result_t pattern1_exit(state_machine_t* const pState)
+static state_machine_result_t wrong_adapter_exit(state_machine_t* const pState)
 {
   (void)(pState);
-  printf("Exiting from pattern1 state\n");
+  printf("Exiting from WRONG_ADAPTER state\n");
+  return EVENT_HANDLED;
+}
+
+static state_machine_result_t idle_entry(state_machine_t* const pState)
+{
+  process_t* const pProcess = (process_t*)pState;
+  printf("Entering to [IDLE] state\n");
+  printf("Supported events:\n");
+  printf("e: ERRORS_EVT\n");
+  printf("a: CONTROLLER_ATTACHED_EVT\n");
+  printf("l: LPD_EVT\n");
   printf("\n");
   return EVENT_HANDLED;
 }
 
-static state_machine_result_t pattern2_entry(state_machine_t* const pState)
-{
-  process_t* const pProcess = (process_t*)pState;
-  printf("Entering to pattern2 state\n");
-  printf("Supported events:\n");
-  printf("'1' : Power Short Press\n");
-  printf("'2' : Power Long Press\n");
-  printf("'3' : Left Press\n");
-  printf("'4' : Right Press\n");
-  return EVENT_HANDLED;
-}
-
-static state_machine_result_t pattern2_handler(state_machine_t* const pState)
+static state_machine_result_t idle_handler(state_machine_t* const pState)
 {
   process_t* const pProcess = (process_t*)pState;
   switch(pState->Event)
   {
-  // case STOP:
-  //   return switch_state(pState, &Process_States[powerdown_STATE]);
-  //
-  // case RESUME:
-  //   return switch_state(pState, &Process_States[PATTERN_1_STATE]);
+  case ERRORS_EVT:
+    return switch_state(pState, &Process_States[ERRORS]);
+
+  case CONTROLLER_ATTACHED_EVT:
+    return switch_state(pState, &Process_States[WORKING]);
+
+  case LPD_EVT:
+    printf("[UI] : LED WATER WARNING\n");
+    break;
 
   default:
     return EVENT_UN_HANDLED;
@@ -201,37 +198,39 @@ static state_machine_result_t pattern2_handler(state_machine_t* const pState)
   return EVENT_HANDLED;
 }
 
-static state_machine_result_t pattern2_exit(state_machine_t* const pState)
+static state_machine_result_t idle_exit(state_machine_t* const pState)
 {
   (void)(pState);
-  printf("Exiting from pattern2 state\n");
+  printf("Exiting from IDLE state\n");
+  return EVENT_HANDLED;
+}
+
+static state_machine_result_t working_entry(state_machine_t* const pState)
+{
+  process_t* const pProcess = (process_t*)pState;
+  printf("Entering to [WORKING] state\n");
+  printf("Supported events:\n");
+  printf("e: ERRORS_EVT\n");
+  printf("d: CONTROLLER_DETACHED_EVT\n");
+  printf("l: LPD_EVT\n");
   printf("\n");
   return EVENT_HANDLED;
 }
 
-
-static state_machine_result_t pattern3_entry(state_machine_t* const pState)
-{
-  process_t* const pProcess = (process_t*)pState;
-  printf("Entering to pattern3 state\n");
-  printf("Supported events:\n");
-  printf("'1' : Power Short Press\n");
-  printf("'2' : Power Long Press\n");
-  printf("'3' : Left Press\n");
-  printf("'4' : Right Press\n");
-  return EVENT_HANDLED;
-}
-
-static state_machine_result_t pattern3_handler(state_machine_t* const pState)
+static state_machine_result_t working_handler(state_machine_t* const pState)
 {
   process_t* const pProcess = (process_t*)pState;
   switch(pState->Event)
   {
-  // case STOP:
-  //   return switch_state(pState, &Process_States[powerdown_STATE]);
-  //
-  // case RESUME:
-  //   return switch_state(pState, &Process_States[PATTERN_1_STATE]);
+  case CONTROLLER_DETACHED_EVT:
+    return switch_state(pState, &Process_States[IDLE]);
+
+  case ERRORS_EVT:
+    return switch_state(pState, &Process_States[ERRORS]);
+
+  case LPD_EVT:
+    printf("[UI] : LED WATER WARNING\n");
+    break;
 
   default:
     return EVENT_UN_HANDLED;
@@ -239,10 +238,45 @@ static state_machine_result_t pattern3_handler(state_machine_t* const pState)
   return EVENT_HANDLED;
 }
 
-static state_machine_result_t pattern3_exit(state_machine_t* const pState)
+static state_machine_result_t working_exit(state_machine_t* const pState)
 {
   (void)(pState);
-  printf("Exiting from pattern3 state\n");
+  printf("Exiting from WORKING state\n");
+  return EVENT_HANDLED;
+}
+
+static state_machine_result_t errors_entry(state_machine_t* const pState)
+{
+  process_t* const pProcess = (process_t*)pState;
+  printf("Entering to [ERRORS] state\n");
+  printf("Supported events:\n");
+  printf("f: ERRORS_DISMISSED_EVT\n");
+  printf("l: LPD_EVT\n");
   printf("\n");
+  return EVENT_HANDLED;
+}
+
+static state_machine_result_t errors_handler(state_machine_t* const pState)
+{
+  process_t* const pProcess = (process_t*)pState;
+  switch(pState->Event)
+  {
+  case ERRORS_DISMISSED_EVT:
+    return switch_state(pState, &Process_States[IDLE]);
+
+  case LPD_EVT:
+    printf("[UI] : LED WATER WARNING\n");
+    break;
+
+  default:
+    return EVENT_UN_HANDLED;
+  }
+  return EVENT_HANDLED;
+}
+
+static state_machine_result_t errors_exit(state_machine_t* const pState)
+{
+  (void)(pState);
+  printf("Exiting from ERRORS state\n");
   return EVENT_HANDLED;
 }

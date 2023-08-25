@@ -1,74 +1,62 @@
 #ifndef DEMO_PROCESS_H
 #define DEMO_PROCESS_H
 
-/**
- * \file
- * \brief Simple finite state machine example
+#include <stdint.h>
 
- * \author  Nandkishor Biradar
- * \date    14 December 2018
-
- *  Copyright (c) 2018-2019 Nandkishor Biradar
- *  https://github.com/kiishor
-
- *  Distributed under the MIT License, (See accompanying
- *  file LICENSE or copy at https://mit-license.org/)
- */
-
-/*
- *  --------------------- ENUMERATION ---------------------
- */
-
-//! List of process events
 typedef enum
 {
-  POWER_SHORT_PRESS = 1,
-  POWER_LONG_PRESS,
-  LEFT_SHORT_PRESS,
-  RIGHT_SHORT_PRESS,
+  STARTUP_EVT = 1,
+  GOOD_ADAPTER_EVT,
+  BAD_ADAPTER_EVT,
+  CONTROLLER_ATTACHED_EVT,
+  CONTROLLER_DETACHED_EVT,
+  ERRORS_EVT,
+  ERRORS_DISMISSED_EVT,
+  LPD_EVT,
 }process_event_t;
 
-/*
- *  --------------------- STRUCTURE ---------------------
- */
-
-//! process state machine
 typedef struct
 {
   state_machine_t Machine;      //!< Abstract state machine
+  uint8_t controller_id;
 }process_t;
-
-/*
- *  --------------------- External function prototype ---------------------
- */
 
 extern void init_process(process_t* const pProcess);
 
-/** \brief Parses the user keyboard input and calls the respective API,
- *  to trigger the events to state machine.
- *
- * \param pProcess process_t* const instance of process_t state machine.
- * \param input char  user input
- *
- */
 static inline void parse_cli(process_t* const pProcess, char input)
 {
   switch(input)
   {
-  case '1':
-    pProcess->Machine.Event = POWER_SHORT_PRESS;
+  case 's':
+    pProcess->Machine.Event = STARTUP_EVT;
     break;
 
-  case '2':
-    pProcess->Machine.Event = POWER_LONG_PRESS;
+  case 'g':
+    pProcess->Machine.Event = GOOD_ADAPTER_EVT;
     break;
 
-  case '3':
-    pProcess->Machine.Event = LEFT_SHORT_PRESS;
+  case 'b':
+    pProcess->Machine.Event = BAD_ADAPTER_EVT;
     break;
 
-  case '4':
-    pProcess->Machine.Event = RIGHT_SHORT_PRESS;
+  case 'a':
+    pProcess->Machine.Event = CONTROLLER_ATTACHED_EVT;
+    break;
+
+  case 'd':
+    pProcess->Machine.Event = CONTROLLER_DETACHED_EVT;
+    break;
+
+  case 'e':
+    pProcess->Machine.Event = ERRORS_EVT;
+    break;
+
+  case 'f':
+    pProcess->Machine.Event = ERRORS_DISMISSED_EVT;
+    break;
+
+  case 'l':
+    pProcess->Machine.Event = LPD_EVT;
     break;
 
   default:
@@ -76,5 +64,4 @@ static inline void parse_cli(process_t* const pProcess, char input)
     break;
   }
 }
-
 #endif // DEMO_PROCESS_H
