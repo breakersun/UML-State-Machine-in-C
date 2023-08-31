@@ -13,12 +13,16 @@ typedef enum
   ERRORS_EVT,
   ERRORS_DISMISSED_EVT,
   LPD_EVT,
+  TIMEOUT_EVT,
 }process_event_t;
 
 typedef struct
 {
   state_machine_t Machine;      //!< Abstract state machine
   uint8_t controller_id;
+  uint32_t Set_Time;    //! Set time of a process
+  uint32_t Resume_Time; //!< Remaining time when the process is paused
+  uint32_t Timer;       //!< Process timer
 }process_t;
 
 extern void init_process(process_t* const pProcess);

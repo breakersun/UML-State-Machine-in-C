@@ -26,6 +26,7 @@
 typedef enum
 {
   POWERUP,
+  GOOD_ADAPTER,
   WRONG_ADAPTER,
   IDLE,
   WORKING,
@@ -40,6 +41,10 @@ static state_machine_result_t powerup_exit(state_machine_t* const State);
 static state_machine_result_t wrong_adapter_handler(state_machine_t* const State);
 static state_machine_result_t wrong_adapter_entry(state_machine_t* const State);
 static state_machine_result_t wrong_adapter_exit(state_machine_t* const State);
+
+static state_machine_result_t good_adapter_handler(state_machine_t* const State);
+static state_machine_result_t good_adapter_entry(state_machine_t* const State);
+static state_machine_result_t good_adapter_exit(state_machine_t* const State);
 
 static state_machine_result_t idle_handler(state_machine_t* const State);
 static state_machine_result_t idle_entry(state_machine_t* const State);
@@ -72,6 +77,13 @@ static const state_t Process_States[] =
     .Id      = WRONG_ADAPTER,
   },
 
+  [GOOD_ADAPTER] = {
+    .Handler = good_adapter_handler,
+    .Entry   = good_adapter_entry,
+    .Exit    = good_adapter_exit,
+    .Id      = GOOD_ADAPTER,
+  },
+
   [IDLE] = {
     .Handler = idle_handler,
     .Entry   = idle_entry,
@@ -102,6 +114,9 @@ void init_process(process_t* const pProcess)
 {
   pProcess->Machine.State = &Process_States[POWERUP];
   pProcess->Machine.Event = 0;
+  pProcess->Set_Time = 10;
+  pProcess->Resume_Time = 0;
+
   powerup_entry((state_machine_t *)pProcess);
 }
 
@@ -121,7 +136,7 @@ static state_machine_result_t powerup_handler(state_machine_t* const pState)
   switch(pState->Event)
   {
   case GOOD_ADAPTER_EVT:
-    return switch_state(pState, &Process_States[IDLE]);
+    return switch_state(pState, &Process_States[GOOD_ADAPTER]);
     break;
   case BAD_ADAPTER_EVT:
     return switch_state(pState, &Process_States[WRONG_ADAPTER]);
@@ -136,6 +151,35 @@ static state_machine_result_t powerup_exit(state_machine_t* const pState)
 {
   (void)pState;
   printf("Exiting from POWERUP state\n");
+  return EVENT_HANDLED;
+}
+
+static state_machine_result_t good_adapter_entry(state_machine_t* const pState)
+{
+  process_t* const pProcess = (process_t*)pState;
+  printf("Entering to [GOOD_ADAPTER] state\n");
+  printf("Supported no events\n");
+  printf("[UI] LED GOOD ADAPTER\n");
+  pProcess->Timer = 2;
+  return EVENT_HANDLED;
+}
+static state_machine_result_t good_adapter_handler(state_machine_t* const pState)
+{
+  switch(pState->Event)
+  {
+    case TIMEOUT_EVT:
+      return switch_state(pState, &Process_States[IDLE]);
+    break;
+  default:
+    return EVENT_UN_HANDLED;
+  }
+  return EVENT_HANDLED;
+}
+
+static state_machine_result_t good_adapter_exit(state_machine_t* const pState)
+{
+  (void)(pState);
+  printf("Exiting from GOOD_ADAPTER state\n");
   return EVENT_HANDLED;
 }
 

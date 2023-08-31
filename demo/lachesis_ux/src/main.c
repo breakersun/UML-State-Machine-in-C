@@ -55,11 +55,30 @@ void result_logger(uint32_t state, state_machine_result_t result)
 }
 
 
-/** \brief Simulate the user inputs.
- *
- * It waits for the user key (ascii) input from console and pass it to parse_cli
- * to convert it into process_t events. It supports start, stop, pause and resume events.
- */
+void* timer(void* vargp)
+{
+    (void)(vargp);
+    while(1)
+    {
+      sleep(1);
+
+      if(SampleProcess.Timer > 0)
+      {
+        SampleProcess.Timer--;
+
+        printf("\rRemaining process time: %d ", SampleProcess.Timer);
+
+        if(SampleProcess.Timer == 0)
+        {
+          printf("\n");
+          SampleProcess.Machine.Event = TIMEOUT_EVT;
+          sem_post(&Semaphore);   // signal to main thread
+        }
+      }
+    }
+    return 0;
+}
+
 void* console(void* vargp)
 {
   (void)(vargp);
@@ -87,6 +106,8 @@ int main(void)
   // Create timer and console thread
   pthread_t console_thread;
   pthread_create(&console_thread, NULL, console, NULL);
+  pthread_t timer_thread;
+  pthread_create(&timer_thread, NULL, timer, NULL);
   sem_init(&Semaphore, 0, 1);
 
   while(1)
