@@ -28,7 +28,6 @@ typedef enum
   POWERUP,
   GOOD_ADAPTER,
   WRONG_ADAPTER,
-  IDLE,
   WORKING,
   ERRORS,
 }process_state_t;
@@ -45,10 +44,6 @@ static state_machine_result_t wrong_adapter_exit(state_machine_t* const State);
 static state_machine_result_t good_adapter_handler(state_machine_t* const State);
 static state_machine_result_t good_adapter_entry(state_machine_t* const State);
 static state_machine_result_t good_adapter_exit(state_machine_t* const State);
-
-static state_machine_result_t idle_handler(state_machine_t* const State);
-static state_machine_result_t idle_entry(state_machine_t* const State);
-static state_machine_result_t idle_exit(state_machine_t* const State);
 
 static state_machine_result_t working_handler(state_machine_t* const State);
 static state_machine_result_t working_entry(state_machine_t* const State);
@@ -82,13 +77,6 @@ static const state_t Process_States[] =
     .Entry   = good_adapter_entry,
     .Exit    = good_adapter_exit,
     .Id      = GOOD_ADAPTER,
-  },
-
-  [IDLE] = {
-    .Handler = idle_handler,
-    .Entry   = idle_entry,
-    .Exit    = idle_exit,
-    .Id      = IDLE,
   },
 
   [WORKING] = {
@@ -168,7 +156,7 @@ static state_machine_result_t good_adapter_handler(state_machine_t* const pState
   switch(pState->Event)
   {
     case TIMEOUT_EVT:
-      return switch_state(pState, &Process_States[IDLE]);
+      return switch_state(pState, &Process_States[WORKING]);
     break;
   default:
     return EVENT_UN_HANDLED;
@@ -209,46 +197,6 @@ static state_machine_result_t wrong_adapter_exit(state_machine_t* const pState)
   return EVENT_HANDLED;
 }
 
-static state_machine_result_t idle_entry(state_machine_t* const pState)
-{
-  process_t* const pProcess = (process_t*)pState;
-  printf("Entering to [IDLE] state\n");
-  printf("Supported events:\n");
-  printf("e: ERRORS_EVT\n");
-  printf("a: CONTROLLER_ATTACHED_EVT\n");
-  printf("l: LPD_EVT\n");
-  printf("\n");
-  return EVENT_HANDLED;
-}
-
-static state_machine_result_t idle_handler(state_machine_t* const pState)
-{
-  process_t* const pProcess = (process_t*)pState;
-  switch(pState->Event)
-  {
-  case ERRORS_EVT:
-    return switch_state(pState, &Process_States[ERRORS]);
-
-  case CONTROLLER_ATTACHED_EVT:
-    return switch_state(pState, &Process_States[WORKING]);
-
-  case LPD_EVT:
-    printf("[UI] : LED WATER WARNING\n");
-    break;
-
-  default:
-    return EVENT_UN_HANDLED;
-  }
-  return EVENT_HANDLED;
-}
-
-static state_machine_result_t idle_exit(state_machine_t* const pState)
-{
-  (void)(pState);
-  printf("Exiting from IDLE state\n");
-  return EVENT_HANDLED;
-}
-
 static state_machine_result_t working_entry(state_machine_t* const pState)
 {
   process_t* const pProcess = (process_t*)pState;
@@ -266,10 +214,13 @@ static state_machine_result_t working_handler(state_machine_t* const pState)
   process_t* const pProcess = (process_t*)pState;
   switch(pState->Event)
   {
-  case CONTROLLER_DETACHED_EVT:
-    return switch_state(pState, &Process_States[IDLE]);
+  case LCONTROLLER_ATTACHED_EVT:
+    break;
 
-  case ERRORS_EVT:
+  case LCONTROLLER_DETACHED_EVT:
+    break;
+
+  case HOST_ERRORS_EVT:
     return switch_state(pState, &Process_States[ERRORS]);
 
   case LPD_EVT:
@@ -305,8 +256,8 @@ static state_machine_result_t errors_handler(state_machine_t* const pState)
   process_t* const pProcess = (process_t*)pState;
   switch(pState->Event)
   {
-  case ERRORS_DISMISSED_EVT:
-    return switch_state(pState, &Process_States[IDLE]);
+  case HOST_ERRORS_DISMISSED_EVT:
+    return switch_state(pState, &Process_States[WORKING]);
 
   case LPD_EVT:
     printf("[UI] : LED WATER WARNING\n");
